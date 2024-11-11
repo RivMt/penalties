@@ -5,6 +5,7 @@ import config_loader as config
 import logger
 import audio
 import facial
+import window
 
 MAX_EXIT_COUNT = 2
 
@@ -48,6 +49,10 @@ async def main():
             facial.append_history(data[2])
             emotion_score = facial.calc_score()
             logger.log("SCORE", f"Emotion: {emotion_score:2f} ({data[1]}/{data[2]})")
+            if emotion_score > 15:
+                await window.display()
+            else:
+                await window.minimize()
         else:
             logger.log(f"{packet_address}:{packet_port}", packet_message)
 

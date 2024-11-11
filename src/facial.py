@@ -18,13 +18,13 @@ def scale_emotion(emotion: str):
     elif emotion in EMOTION_FEAR:
         return 10
     elif emotion in EMOTION_HAPPY:
-        return -10
+        return -30
     elif emotion in EMOTION_NEUTRAL:
         return 0
     elif emotion in EMOTION_SAD:
-        return -1
+        return -10
     elif emotion in EMOTION_SURPRISE:
-        return -1
+        return -10
     return 0
 
 
