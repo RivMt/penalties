@@ -20,8 +20,14 @@ udp_server_socket.setblocking(False)
 udp_server_socket.settimeout(config.get_timeout())
 
 
+# Scores
+emotion_score = 0
+speech_score = 0
+physics_score = 0
+
 # Listen Datagram incoming
 async def main():
+    global emotion_score, speech_score, physics_score
     logger.log(server_ip, "UDP Server Initialized")
     exit_count = 0
     while True:
@@ -38,21 +44,29 @@ async def main():
                 exit_count += 1
                 continue
             exit()
-        packet_message = str(repr(byte_addr_pair[0])).lower()
+        packet_message = byte_addr_pair[0].decode("unicode_escape").encode('latin1').decode('utf-8').lower()
         packet_address = (byte_addr_pair[1][0])
         packet_port = byte_addr_pair[1][1]
 
-        emotion_score = 0
         if "emotion" in packet_message:
             data = packet_message.split(" ")
             facial.append_history(data[1])
             facial.append_history(data[2])
             emotion_score = facial.calc_score()
-            logger.log("SCORE", f"Emotion: {emotion_score:2f} ({data[1]}/{data[2]})")
+            logger.log("Emotion", f"{emotion_score:2f} ({data[1]}/{data[2]})")
             if emotion_score > 15:
                 await window.display()
             else:
                 await window.minimize()
+        elif "speech" in packet_message:
+            data = packet_message.split(" ", maxsplit=2)
+            speech_score = float(data[1])
+            message = data[2]
+            logger.log("Speech", f"{speech_score:.2f}: {message})")
+        elif "physics" in packet_message:
+            data = packet_message.split(" ", maxsplit=1)
+            physics_score = float(data[1])
+            logger.log("Physics", f"{physics_score:.2f}")
         else:
             logger.log(f"{packet_address}:{packet_port}", packet_message)
 
