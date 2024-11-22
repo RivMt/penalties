@@ -12,5 +12,5 @@ async def play_alert():
     pygame.mixer.music.load('./res/alert.mp3')
     pygame.mixer.music.play()
     
-async def stop():
+def stop():
     pygame.mixer.music.stop()

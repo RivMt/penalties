@@ -1,13 +1,14 @@
 import socket
 import asyncio
+from qasync import QEventLoop, asyncSlot
 
 import config_loader as config
 import logger
 import audio
 import facial
 import window
+import constants
 
-MAX_EXIT_COUNT = 2
 
 server_ip = config.get_host_address()
 server_port = config.get_port()
@@ -24,10 +25,12 @@ udp_server_socket.settimeout(config.get_timeout())
 emotion_score = 0
 speech_score = 0
 physics_score = 0
+debug_score = 0
 
 # Listen Datagram incoming
 async def main():
-    global emotion_score, speech_score, physics_score
+    # Init
+    global emotion_score, speech_score, physics_score, debug_score
     logger.log(server_ip, "UDP Server Initialized")
     exit_count = 0
     while True:
@@ -39,8 +42,8 @@ async def main():
         except TimeoutError:
             continue
         except KeyboardInterrupt:
-            if exit_count < MAX_EXIT_COUNT:
-                logger.log(server_ip, f"Press Ctrl+C {MAX_EXIT_COUNT - exit_count} times")
+            if exit_count < constants.MAX_EXIT_COUNT:
+                logger.log(server_ip, f"Press Ctrl+C {constants.MAX_EXIT_COUNT - exit_count} times")
                 exit_count += 1
                 continue
             exit()
@@ -48,16 +51,13 @@ async def main():
         packet_address = (byte_addr_pair[1][0])
         packet_port = byte_addr_pair[1][1]
 
+        # Handle message
         if "emotion" in packet_message:
             data = packet_message.split(" ")
             facial.append_history(data[1])
             facial.append_history(data[2])
             emotion_score = facial.calc_score()
             logger.log("Emotion", f"{emotion_score:2f} ({data[1]}/{data[2]})")
-            if emotion_score > 15:
-                await window.display()
-            else:
-                await window.minimize()
         elif "speech" in packet_message:
             data = packet_message.split(" ", maxsplit=2)
             speech_score = float(data[1])
@@ -67,10 +67,30 @@ async def main():
             data = packet_message.split(" ", maxsplit=1)
             physics_score = float(data[1])
             logger.log("Physics", f"{physics_score:.2f}")
+        elif "debug" in packet_message:
+            data = packet_message.split(" ", maxsplit=1)
+            debug_score = float(data[1])
+            logger.log("Debug", f"{data[1]}")
         else:
             logger.log(f"{packet_address}:{packet_port}", packet_message)
 
+        # Trigger action
+        general_score = emotion_score + speech_score + physics_score + debug_score
+        # Emotion
+        if emotion_score > 15:
+            await window.display_smile()
+        else:
+            await window.minimize_smile()
+        # General
+        await window.set_gauge(int(general_score))
+        if general_score >= 500:
+            await window.display_gauge()
+        else:
+            await window.minimize_gauge()
+
 if __name__ == "__main__":
-    main_loop = asyncio.get_event_loop()
-    main_loop.run_until_complete(main())
-    main_loop.close()
+    # Integrate Async loop
+    loop = QEventLoop(window.app)
+    asyncio.set_event_loop(loop)
+    loop.create_task(main())
+    loop.run_forever()
