@@ -8,6 +8,7 @@ import random
 window = tk.Tk()
 window.title("Progress Bar Example")
 window.geometry("300x100")
+window.attributes('-topmost', True)
 
 # 進行状況を追跡するための変数を設定
 progress_var = tk.IntVar()
