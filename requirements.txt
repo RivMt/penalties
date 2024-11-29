@@ -1,0 +1,4 @@
+pygame~=2.6.1
+pyqt5~=5.15.11
+PyQt5Designer~=5.14.1
+qasync~=0.27.1
