@@ -52,18 +52,16 @@ async def main():
         packet_port = byte_addr_pair[1][1]
 
         # Handle message
-        if "emotion" in packet_message:
+        if "emo" in packet_message:
             data = packet_message.split(" ")
-            facial.append_history(data[1])
-            facial.append_history(data[2])
-            emotion_score = facial.calc_score()
-            logger.log("Emotion", f"{emotion_score:2f} ({data[1]}/{data[2]})")
-        elif "speech" in packet_message:
+            emotion_score = float(data[1])
+            logger.log("Emotion", f"{emotion_score:2f}")
+        elif "spe" in packet_message:
             data = packet_message.split(" ", maxsplit=2)
             speech_score = float(data[1])
             message = data[2]
             logger.log("Speech", f"{speech_score:.2f}: {message})")
-        elif "physics" in packet_message:
+        elif "phy" in packet_message:
             data = packet_message.split(" ", maxsplit=1)
             physics_score = float(data[1])
             logger.log("Physics", f"{physics_score:.2f}")
@@ -81,12 +79,17 @@ async def main():
             await window.display_smile()
         else:
             await window.minimize_smile()
+        # Speech
+        if speech_score > 30:
+            await audio.play_alert()
         # General
         await window.set_gauge(int(general_score))
         if general_score >= 500:
             await window.display_gauge()
         else:
             await window.minimize_gauge()
+        if general_score >= 1000:
+            await audio.play_relax()
 
 if __name__ == "__main__":
     # Integrate Async loop
