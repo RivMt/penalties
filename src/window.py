@@ -9,12 +9,22 @@ import constants as constants
 
 app = QApplication(sys.argv)
 smile_form_class = uic.loadUiType("./res/smilewindow.ui")[0]
+smile_style = open("res/smile.qss", 'r', encoding='utf8').read()
 
-
-class SmileWindow(QMainWindow, smile_form_class):
+class SmileWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setupUi(self)
+        self.setWindowTitle("Smile your face!")
+        main_widget = QWidget()
+        layout = QVBoxLayout()
+        self.setGeometry(100, 300, 500, 200)
+        self.label_title = QLabel('Smile!', self)
+        self.label_title.move(250, 100)
+        self.label_title.setStyleSheet(smile_style)
+        layout.addWidget(self.label_title)
+        main_widget.setLayout(layout)
+        self.setWindowFlags(Qt.FramelessWindowHint)
+
 
 
 smileWindow = SmileWindow()
@@ -29,7 +39,7 @@ async def minimize_smile():
 
 
 gauge_form_class = uic.loadUiType("./res/gaugewindow.ui")[0]
-
+gauge_style = open("res/gauge.qss", 'r', encoding='utf8').read()
 
 class GaugeWindow(QMainWindow):
     def __init__(self):
@@ -46,27 +56,8 @@ class GaugeWindow(QMainWindow):
         main_widget.setLayout(layout)
         self.setCentralWidget(main_widget)
         self.current_value = 0
-        self.progress_bar.setStyleSheet("""
-            QProgressBar {
-                border: 2px solid #8f8f91;
-                border-radius: 5px;
-                background-color: rgba(50, 50, 50, 80);  /* 半透明の背景 */
-                text-align: center;
-                color: white;
-            }
-            QProgressBar::chunk {
-                background-color: qlineargradient(
-                    spread:pad, x1:0, y1:0, x2:1, y2:0,
-                    stop:0 rgba(85, 170, 255, 150),
-                    stop:1 rgba(170, 85, 255, 150)
-                );  /* 水平のグラデーション */
-                border-radius: 5px;  /* 丸みを追加 */
-            }
-        """)
-
-        
-
-        self.setWindowFlags(Qt.FramelessWindowHint)#タイトルバーを消す
+        self.progress_bar.setStyleSheet(gauge_style)
+        self.setWindowFlags(Qt.FramelessWindowHint)
 
     def update_progress(self, value):
         self.progress_bar.setValue(value)
