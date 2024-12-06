@@ -13,10 +13,12 @@ channel_alert = pygame.mixer.Channel(0)
 channel_relax = pygame.mixer.Channel(1)
 
 async def play_alert():
-    channel_alert.play(sound_alert)
+    if not channel_alert.get_busy():
+        channel_alert.play(sound_alert)
 
 async def play_relax():
-    channel_relax.play(sound_relax)
+    if not channel_relax.get_busy():
+        channel_relax.play(sound_relax)
     
 def stop():
     channel_alert.stop()

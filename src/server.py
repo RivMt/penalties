@@ -55,16 +55,19 @@ async def main():
         if "emo" in packet_message:
             data = packet_message.split(" ")
             emotion_score = float(data[1])
-            logger.log("Emotion", f"{emotion_score:2f}")
+            if emotion_score > 0:
+                logger.log("Emotion", f"{emotion_score:2f}")
         elif "spe" in packet_message:
             data = packet_message.split(" ", maxsplit=2)
             speech_score = float(data[1])
             message = data[2]
-            logger.log("Speech", f"{speech_score:.2f}: {message})")
+            if speech_score > 0:
+                logger.log("Speech", f"{speech_score:.2f}: {message}")
         elif "phy" in packet_message:
             data = packet_message.split(" ", maxsplit=1)
             physics_score = float(data[1])
-            logger.log("Physics", f"{physics_score:.2f}")
+            if physics_score:
+                logger.log("Physics", f"{physics_score:.2f}")
         elif "debug" in packet_message:
             data = packet_message.split(" ", maxsplit=1)
             debug_score = float(data[1])
@@ -75,12 +78,12 @@ async def main():
         # Trigger action
         general_score = emotion_score + speech_score + physics_score + debug_score
         # Emotion
-        if emotion_score > 15:
+        if emotion_score >= 150:
             await window.display_smile()
         else:
             await window.minimize_smile()
         # Speech
-        if speech_score > 30:
+        if speech_score >= 400:
             await audio.play_alert()
         # General
         await window.set_gauge(int(general_score))
