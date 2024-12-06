@@ -46,6 +46,27 @@ class GaugeWindow(QMainWindow):
         main_widget.setLayout(layout)
         self.setCentralWidget(main_widget)
         self.current_value = 0
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 2px solid #8f8f91;
+                border-radius: 5px;
+                background-color: rgba(50, 50, 50, 80);  /* 半透明の背景 */
+                text-align: center;
+                color: white;
+            }
+            QProgressBar::chunk {
+                background-color: qlineargradient(
+                    spread:pad, x1:0, y1:0, x2:1, y2:0,
+                    stop:0 rgba(85, 170, 255, 150),
+                    stop:1 rgba(170, 85, 255, 150)
+                );  /* 水平のグラデーション */
+                border-radius: 5px;  /* 丸みを追加 */
+            }
+        """)
+
+        
+
+        self.setWindowFlags(Qt.FramelessWindowHint)#タイトルバーを消す
 
     def update_progress(self, value):
         self.progress_bar.setValue(value)
