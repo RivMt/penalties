@@ -87,10 +87,14 @@ async def main():
             await audio.play_alert()
         # General
         await window.set_gauge(int(general_score))
-        if general_score >= 500:
+        if general_score >= constants.PROGRESS_BAR_MIN:
             await window.display_gauge()
         else:
             await window.minimize_gauge()
+        if general_score >= constants.PROGRESS_BAR_MAX:
+            await audio.display_black()
+        else:
+            await audio.display_restore()
         if general_score >= 1000:
             await audio.play_relax()
 
